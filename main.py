@@ -12,19 +12,20 @@ from kivy.clock import Clock
 
 import paramiko
 import threading
-import time
+#import time
 
 
 # Classe pour un objet ssh avec la connexion déconnexion command …
 class SSHThread(threading.Thread):
-    def __init__(self, popup_progress_win):
+    def __init__(self):  # , popup_progress_win):
         super(SSHThread, self).__init__()
         self.hostname = ""
         self.username = ""
         self.password = ""
-        self.pop_win_progress = popup_progress_win
+        #self.pop_win_progress = popup_progress_win
 
         self.conn = None
+        self.is_finished = False
 
     def close(self):
         self.conn.close()
@@ -37,8 +38,10 @@ class SSHThread(threading.Thread):
         self.conn.set_missing_host_key_policy(paramiko.AutoAddPolicy())
         self.conn.connect(self.hostname, username=self.username,
                           password=self.password,)
-        time.sleep(5)
-        self.pop_win_progress.dismiss()
+
+        self.is_finished = True
+        #time.sleep(5)
+        #self.pop_win_progress.dismiss()
 
 
 # Affichage d'une popup pendant la connexion
@@ -93,7 +96,7 @@ class StartStopMotion(BoxLayout):
 
     def essai(self):
         app = Vismais.get_running_app()
-        app.ssh_thread.join() # caca ici
+        app.ssh_thread.join()  # caca ici
             # avancer ailleurs de plus 1 dans l'affichage de la progressbar
 
         print('je passe ici')
@@ -112,6 +115,7 @@ class Vismais(App):
     def __init__(self):
         super(Vismais, self).__init__()
         self.ssh_thread = None
+        self._popup = None
 
     def on_stop(self):
         self.disconnect_ssh()
@@ -121,8 +125,16 @@ class Vismais(App):
             self.ssh_thread.close()
 
     def connect_to_ssh(self, popup_conn):
-        self.ssh_thread = SSHThread(popup_conn)
+        self._popup = popup_conn
+        self.ssh_thread = SSHThread()
         self.ssh_thread.start()
+
+        Clock.schedule_interval(self.connection_checker, 1 / 10.)
+
+    def connection_checker(self, dt):
+        if self.ssh_thread.is_finished:
+            self._popup.dismiss()
+            Clock.unschedule(self.connection_checker)
 
     def is_alive(self):
         return self.ssh_thread.is_alive()
