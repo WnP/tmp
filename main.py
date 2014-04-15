@@ -12,7 +12,7 @@ from kivy.clock import Clock
 
 import paramiko
 import threading
-#import time
+import time
 
 
 # Classe pour un objet ssh avec la connexion déconnexion command …
@@ -39,8 +39,8 @@ class SSHThread(threading.Thread):
         self.conn.connect(self.hostname, username=self.username,
                           password=self.password,)
 
+        time.sleep(5)
         self.is_finished = True
-        #time.sleep(5)
         #self.pop_win_progress.dismiss()
 
 
