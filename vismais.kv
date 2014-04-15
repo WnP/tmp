@@ -1,0 +1,24 @@
+RootForm:
+
+<RootForm>:
+    anchor_y: "top"
+    ConnectForm:
+
+<ConnectForm>:
+    orientation: "vertical"
+    Button:
+        text: "Connexion"
+        on_release: root.connect()
+    Button:
+        text: "Quitter"
+        on_release: root.quit()
+
+<StartStopMotion>:
+    button_start_motion: bp_start
+    orientation: "vertical"
+    Button:
+        text: "Démarrer motion"
+        id: bp_start
+    Button:
+        text: "Quitter"
+        on_release: root.quit()
